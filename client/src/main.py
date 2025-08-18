@@ -1,0 +1,1 @@
+print('Aplicação python em execução...')
