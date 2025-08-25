@@ -1,0 +1,539 @@
+{
+  "name": "Agente de Automação VR",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1440,
+        -160
+      ],
+      "id": "eb021b9a-21f4-46df-b825-66a6ca0d59bf",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "binaryPropertyName": "={{ $json.filename }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        320
+      ],
+      "id": "15c4bace-a355-4736-ad10-cb6cf1aa7677",
+      "name": "Extrair da Planilha",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "url": "https://drive.usercontent.google.com/download?id=1SzLGxIRo2j8eHPdqe06xXxtoGGrWHoJ5&export=download&authuser=0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        576,
+        32
+      ],
+      "id": "dfc3858c-1e6b-4b89-9b50-581c2be30e99",
+      "name": "Requisitar Dados"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        32
+      ],
+      "id": "0c7cdc6b-50cd-4428-93e2-4909661f0abc",
+      "name": "Descompactar"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fileData = $input.first().binary;\n\nconst output = [];\n\n// Para cada chave (arquivo) dentro de fileData\nfor (const key in fileData) {\n  output.push({\n    json: {\n      // nome do arquivo\n      filename: key,\n    },\n    binary: {\n      // arquivo: data\n      [key]: fileData[key]\n    },\n  })\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        928,
+        32
+      ],
+      "id": "8c493cf0-d305-44c9-80fc-4e6ede8b955a",
+      "name": "Dividir Dados"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1184,
+        64
+      ],
+      "id": "5732b0ec-f515-4cec-8b58-47752d982432",
+      "name": "Iterar Itens"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        336,
+        32
+      ],
+      "id": "69ddc87e-1c38-462c-addf-b000853f7bff",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=----\n\nDADOS PARA ANÁLISE: {{ JSON.stringify($input.all()) }}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {
+          "systemMessage": "Você é um agente analista de dados altamente qualificado e especialista em processamento e limpeza de dados de planilhas. Sua principal função é receber dados de planilhas e garantir que eles estejam prontos para análise, interpretação e uso em relatórios.\n\n### Seus Objetivos\n\nSua tarefa principal é realizar as seguintes ações de tratamento de dados de forma autônoma:\n1.  **Validação e Consistência:** Analise os dados para identificar e corrigir inconsistências e erros de formatação.\n2.  **Limpeza de Dados:** Remova valores duplicados e preencha valores ausentes (se houver um método lógico para isso, como a média da coluna).\n3.  **Normalização e Padronização:** Certifique-se de que os dados estejam em um formato padronizado. Converta todos os textos para um único formato (por exemplo, `Título da Coluna` para `coluna_titulo`) e padronize datas e outros formatos numéricos.\n\n### Regras e Diretrizes\n\n* **Entrada de Dados:** Você receberá os dados em formato JSON, onde cada item representa uma linha da planilha.\n* **Saída Esperada:** Retorne os dados já processados em um único bloco de código JSON, com a mesma estrutura de entrada.\n* **Não invente dados:** Não crie dados que não existam na entrada, a menos que seja explicitamente solicitado e a sua criação seja baseada em uma lógica clara e consistente. Garanta que valores os valores presentes sejam os mesmos.\n* **Comunicação:** Não responda com diálogos ou explicações. Sua única saída deve ser o JSON final.\n* **Manutenção de Integridade:** Mantenha a ordem original das linhas, a menos que seja instruído a fazer o contrário.\n\n### Exemplo de Fluxo\n**Entrada:**\n```\n[{\"ID_PRODUTO\": \"abc-123\", \"CATEGORIA\": \"Eletronicos\", \"VENDA_MENSAL\": \"12000,00\", \"DATA\": \"01/01/2024\"},   {\"ID_PRODUTO\": \"xyz_456\", \"CATEGORIA\": \"eletroeletronicos\", \"VENDA_MENSAL\": \"15000.00\", \"DATA\": \"15/01/24\"}] \n```\n\n**Sua Ação:**\n1. Padronizar `ID_PRODUTO` para minúsculas e sem hífens (`abc123`).\n2. Normalizar a `CATEGORIA` (`eletroeletronicos` para `Eletrônicos`).\n3. Converter `VENDA_MENSAL` para um número (`12000.00`). 4.  Padronizar a `DATA` para o formato `AAAA-MM-DD`.\n**Saída (único JSON):** \n```\n[{\"id_produto\": \"abc123\",     \"categoria\": \"Eletrônicos\",     \"venda_mensal\": 12000.00,     \"data\": \"2024-01-01\"   }, {\"id_produto\": \"xyz456\",     \"categoria\": \"Eletrônicos\",     \"venda_mensal\": 15000.00,     \"data\": \"2024-01-15\"   } ] ```"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        496
+      ],
+      "id": "19ea5f68-4447-4dd6-8931-f046081962d6",
+      "name": "Tratar Dados",
+      "executeOnce": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "vvG8vxpI60EEOOHy",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst llmResponse = $input.first().json.content.parts[0].text\n\nconst jsonData = JSON.parse(llmResponse)\n\nreturn jsonData;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1744,
+        496
+      ],
+      "id": "3e226c71-5314-4afe-ac54-b01d6f20d833",
+      "name": "Traduzir para JSON",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "binaryPropertyName": "={{ $json }}",
+        "options": {
+          "fileName": "={{ $('Iterar Itens').item.json.filename }}",
+          "headerRow": true
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1888,
+        496
+      ],
+      "id": "b667fcae-2078-4c9f-b5e5-0b1a585ce4fe",
+      "name": "Criar Excel",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst llmResponse = $input.first().json.content.parts[0].text\n\nconst jsonData = JSON.parse(llmResponse)\n\nreturn jsonData;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        16
+      ],
+      "id": "37519f91-995d-44f9-a836-44092b294a44",
+      "name": "Traduzir para JSON 2",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "binaryPropertyName": "={{ $json }}",
+        "options": {
+          "fileName": "={{ $('Iterar Itens').item.json.filename }}",
+          "headerRow": true
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1936,
+        16
+      ],
+      "id": "e080c767-9ea1-4ffe-b6a6-0edd977ea9b6",
+      "name": "Criar Excel 2",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=----\n\nDADOS PARA ANÁLISE: {{ JSON.stringify($input.all()) }}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {
+          "systemMessage": "Você é um agente analista de dados altamente qualificado e especialista em processamento e limpeza de dados de planilhas. Sua principal função é receber dados de planilhas e garantir que eles estejam prontos para análise, interpretação e uso em relatórios.\n\n### Seus Objetivos\n\nSua tarefa principal é realizar as seguintes ações de tratamento de dados de forma autônoma:\n1.  **Validação e Consistência:** Analise os dados para identificar e corrigir inconsistências e erros de formatação.\n2.  **Limpeza de Dados:** Remova valores duplicados e preencha valores ausentes (se houver um método lógico para isso, como a média da coluna).\n3.  **Normalização e Padronização:** Certifique-se de que os dados estejam em um formato padronizado. Converta todos os textos para um único formato (por exemplo, `Título da Coluna` para `coluna_titulo`) e padronize datas e outros formatos numéricos.\n\n### Regras e Diretrizes\n\n* **Entrada de Dados:** Você receberá os dados em formato JSON, onde cada item representa uma linha da planilha.\n* **Saída Esperada:** Retorne os dados já processados em um único bloco de código JSON, com a mesma estrutura de entrada.\n* **Não invente dados:** Não crie dados que não existam na entrada, a menos que seja explicitamente solicitado e a sua criação seja baseada em uma lógica clara e consistente. Garanta que valores os valores presentes sejam os mesmos.\n* **Comunicação:** Não responda com diálogos ou explicações. Sua única saída deve ser o JSON final.\n* **Manutenção de Integridade:** Mantenha a ordem original das linhas, a menos que seja instruído a fazer o contrário.\n\n### Exemplo de Fluxo\n**Entrada:**\n```\n[{\"ID_PRODUTO\": \"abc-123\", \"CATEGORIA\": \"Eletronicos\", \"VENDA_MENSAL\": \"12000,00\", \"DATA\": \"01/01/2024\"},   {\"ID_PRODUTO\": \"xyz_456\", \"CATEGORIA\": \"eletroeletronicos\", \"VENDA_MENSAL\": \"15000.00\", \"DATA\": \"15/01/24\"}] \n```\n\n**Sua Ação:**\n1. Padronizar `ID_PRODUTO` para minúsculas e sem hífens (`abc123`).\n2. Normalizar a `CATEGORIA` (`eletroeletronicos` para `Eletrônicos`).\n3. Converter `VENDA_MENSAL` para um número (`12000.00`). 4.  Padronizar a `DATA` para o formato `AAAA-MM-DD`.\n**Saída (único JSON):** \n```\n[{\"id_produto\": \"abc123\",     \"categoria\": \"Eletrônicos\",     \"venda_mensal\": 12000.00,     \"data\": \"2024-01-01\"   }, {\"id_produto\": \"xyz456\",     \"categoria\": \"Eletrônicos\",     \"venda_mensal\": 15000.00,     \"data\": \"2024-01-15\"   } ] ```"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        192
+      ],
+      "id": "f9932734-59ca-486f-af66-46958657287e",
+      "name": "Tratar Dados 2",
+      "executeOnce": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "vvG8vxpI60EEOOHy",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "18c2703f-33b6-4151-ab51-8157156417fc",
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 400,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        320
+      ],
+      "id": "6d61b79c-e8fa-4920-8650-7193eefb298e",
+      "name": "Lote Maior Que 300"
+    },
+    {
+      "parameters": {
+        "batchSize": 300,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1664,
+        192
+      ],
+      "id": "1860f363-2a5b-469a-a4b1-6956d0316b84",
+      "name": "Iterar 300 por Vez",
+      "notesInFlow": true,
+      "notes": "Evita  timeout no modelo pela demora de processamento"
+    },
+    {
+      "parameters": {
+        "content": "# Entrada de Dados\nEsse segmento é responsável por baixar o arquivo zipado com as planilhas, descompactar e segmentar os arquivos em vários itens.\nO nó de HTTP Request pode ser substituído por uma entrada pelo usuário.",
+        "height": 272,
+        "width": 288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        336,
+        -352
+      ],
+      "id": "e027859c-6636-460e-b9f6-6f739a01d3a4",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 240,
+        "width": 784,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        256,
+        0
+      ],
+      "id": "7c7c84ae-7a60-4ace-a313-864bc9833542",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Processamento das Planilhas\nEsse segmento é responsável por iterar sobre cada planilha e extrair os dados para análise individual da LLM.\n\n## Requer otimização",
+        "height": 272,
+        "width": 288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        -336
+      ],
+      "id": "24bed771-309e-4a63-98f8-e3a58917e1a8",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 688,
+        "width": 960,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "1724a6b4-1e31-4265-b806-026d0303ed23",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extrair da Planilha": {
+      "main": [
+        [
+          {
+            "node": "Lote Maior Que 300",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Requisitar Dados": {
+      "main": [
+        [
+          {
+            "node": "Descompactar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Descompactar": {
+      "main": [
+        [
+          {
+            "node": "Dividir Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dividir Dados": {
+      "main": [
+        [
+          {
+            "node": "Iterar Itens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iterar Itens": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extrair da Planilha",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Requisitar Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tratar Dados": {
+      "main": [
+        [
+          {
+            "node": "Traduzir para JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Traduzir para JSON": {
+      "main": [
+        [
+          {
+            "node": "Criar Excel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Excel": {
+      "main": [
+        [
+          {
+            "node": "Iterar Itens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Traduzir para JSON 2": {
+      "main": [
+        [
+          {
+            "node": "Criar Excel 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Excel 2": {
+      "main": [
+        [
+          {
+            "node": "Iterar Itens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tratar Dados 2": {
+      "main": [
+        [
+          {
+            "node": "Iterar 300 por Vez",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lote Maior Que 300": {
+      "main": [
+        [
+          {
+            "node": "Iterar 300 por Vez",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tratar Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iterar 300 por Vez": {
+      "main": [
+        [
+          {
+            "node": "Traduzir para JSON 2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tratar Dados 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "109d9546-1d1c-4223-b865-704e2ce25e9b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "231b4fcf052db07b90cec772d2e46c08568f8721ea038399e11d196703eb0290"
+  },
+  "id": "sBkLBjwwjaE8vj8T",
+  "tags": []
+}
