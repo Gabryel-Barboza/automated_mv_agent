@@ -49,7 +49,8 @@ cd automated_mv_agent
 **Renomeie o arquivo .env.example para .env antes de continuar!**
 
 Com o Docker instalado e o projeto baixado, navegue até a pasta raiz do projeto no seu terminal e execute o comando adiante, certifique-se de estar vendo o arquivo `compose.yml`. 
-* No Windows você pode abrir o terminal pesquisando por CMD ou abrir a pasta e na barra de endereço digita CMD e pressionar `ENTER`.
+* No Windows, você pode abrir o terminal pesquisando por CMD ou abrir a pasta e na barra de endereço digitar CMD e pressionar `ENTER`.
+* No Linux, utilize o seu terminal de preferência para navegar até o diretório.
 
 ```bash
 docker compose up
