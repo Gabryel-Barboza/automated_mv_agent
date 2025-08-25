@@ -1,5 +1,10 @@
 # Agente de Automação para VR
 
+* [Sobre o Projeto](https://github.com/Gabryel-Barboza/automated_mv_agent/main/README)
+* [Instalação e Configuração](https://github.com/Gabryel-Barboza/automated_mv_agent/main/)
+* [Configuração do Agente (n8n)]()
+* [Acessando a Interface Web]()
+
 ## 🤖 Sobre o Projeto
 
 O **Agente de Automação para VR** é uma solução que agiliza o processo de cálculo e compra de vales-refeição e alimentação. O projeto automatiza a análise e o tratamento de planilhas com dados de funcionários, calculando os valores de VR/VA para cada um de forma precisa e eficiente.
