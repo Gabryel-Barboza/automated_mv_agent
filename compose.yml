@@ -15,8 +15,8 @@ services:
       - 5678
     restart: always
 
-  # Interface web para o n8n, exposta na porta 8000. Realiza o Build no arquivo Dockerfile
-  web_interface:
+  # Servidor de tratamento com Python, exposto na porta 8000. Realiza o Build no arquivo Dockerfile
+  fastapi:
     build: .
     networks:
       - mainnet

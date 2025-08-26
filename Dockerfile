@@ -1,7 +1,12 @@
 FROM python:3.12.11-alpine
 
-COPY client /app
+COPY backend /app
 
 WORKDIR /app
 
-CMD ["python", "-u", "src/main.py"]
+RUN pip install --no-cache-dir -r requirements.txt
+
+WORKDIR /app/src
+
+
+CMD ["fastapi", "run", "main.py"]
