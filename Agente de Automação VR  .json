@@ -140,26 +140,6 @@
     },
     {
       "parameters": {
-        "model": "llama3-70b-8192",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
-      "typeVersion": 1,
-      "position": [
-        1392,
-        448
-      ],
-      "id": "8332ce08-e80a-4a3a-8fc5-d5e9429ba92a",
-      "name": "Groq Chat Model",
-      "credentials": {
-        "groqApi": {
-          "id": "Gn2kpK8QNLxbnHME",
-          "name": "Groq account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "jsCode": "const [headers, ...data] = $input.first().json.data.split('\\n')\n\nreturn [{ headers }, { data }]\n"
       },
       "type": "n8n-nodes-base.code",
@@ -192,8 +172,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        1744,
-        448
+        1520,
+        480
       ],
       "id": "2f6ba9da-7acd-48ce-b724-eb0ba25dd6fa",
       "name": "Google Gemini Chat Model",
@@ -207,16 +187,16 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=\nCABEÇALHOS DO CSV: {{ $json.headers }}\nDADOS DO CSV: {{ $json.dataList }}",
+        "text": "=\nCABEÇALHOS DO CSV: {{ $('Extrair Cabeçalhos').first().json.headers }}\nDADOS DO CSV: {{ $json.dataList.map(item => item.dataList) }}",
         "options": {
-          "systemMessage": "Você é um analista de dados altamente competente e preciso, especializado em limpeza e validação de dados de recursos humanos em planilhas CSV. Sua tarefa é analisar estritamente os dados fornecidos no arquivo CSV, sem inventar, adicionar ou assumir qualquer informação que não esteja presente nos dados originais. Todas as correções e tratamentos devem ser baseados exclusivamente em padrões lógicos, consistências internas dos dados e regras explícitas fornecidas abaixo. Se uma correção não puder ser feita com base nos dados existentes (por exemplo, se um campo faltante não tiver contexto para inferência direta de outras colunas), marque-o como \"N/A\" ou deixe em branco, mas documente o motivo em uma nota separada no final do output.\n\n**Entrada de Dados**: Você receberá o conteúdo completo do arquivo CSV como uma string de texto. Parseie-o corretamente como um DataFrame ou estrutura tabular equivalente para processamento.\n\n**Tratamentos a Realizar**:\n1. **Tratamento de Exclusões**:\n   - Remova da base final todos os profissionais com cargos que indiquem diretores (ex.: \"Diretor\", \"Diretora\", ou variações como \"Diretor Executivo\"), estagiários (ex.: \"Estagiário\", \"Estagiária\"), aprendizes (ex.: \"Aprendiz\", \"Jovem Aprendiz\"), afastados em geral (ex.: licença maternidade, licença saúde, ou qualquer status de afastamento indicado em colunas como \"Status\" ou \"Afastamento\"), e profissionais que atuam no exterior (ex.: identificados por colunas como \"País\", \"Localização\" ou \"Exterior\" com valores como \"Exterior\", \"Internacional\", ou códigos de países fora do Brasil).\n   - Guie-se pela matrícula (assuma que há uma coluna como \"Matrícula\" ou \"ID\" única por profissional) para identificar e excluir linhas inteiras. Não exclua linhas se a identificação não for clara com base nos dados; em vez disso, mantenha e anote como \"Inconsistência não resolvida\".\n   - Exclua colunas da base final se esta:\n     - possuir apenas dados nulos\n     - possuir dados duplicados de outras colunas\n\n2. **Validação e Correção**:\n   - **Datas inconsistentes ou \"quebradas\"**: Verifique colunas de datas (ex.: \"Data de Admissão\", \"Data de Nascimento\", \"Data de Término\"). Corrija formatos inconsistentes (ex.: converter \"DD/MM/YYYY\" para \"YYYY-MM-DD\" se padrão, ou corrigir datas inválidas como \"32/01/2023\" para a data mais lógica baseada em contexto próximo, como \"31/01/2023\" se houver evidência em outras linhas).\n   - **Campos faltantes**: Para campos vazios, preencha apenas se houver lógica direta dos dados (ex.: se uma coluna \"Idade\" estiver vazia, calcule-a a partir de \"Data de Nascimento\" e data atual se disponível; caso contrário, deixe como \"N/A\").\n   - **Férias mal preenchidas**: Verifique colunas relacionadas a férias (ex.: \"Período de Férias\", \"Dias de Férias\"). Corrija se houver sobreposições ou durações impossíveis (ex.: férias de mais de 30 dias sem justificativa nos dados), ajustando para valores padrão brasileiros (30 dias) apenas se o contexto dos dados permitir (ex.: baseado em tempo de serviço calculável de outras colunas). Não assuma valores sem base.\n   - **Feriados estaduais e municipais aplicados corretamente**: Identifique colunas de ausências ou calendários. Aplique feriados brasileiros padrão (ex.: federais como Carnaval, Natal) e ajuste para estaduais/municipais apenas se o local (ex.: estado/cidade) estiver explicitamente nos dados e você puder inferir logicamente sem pesquisa externa. Use apenas conhecimento geral de feriados públicos brasileiros (ex.: feriado em SP como 09/07); não invente datas ou locais. Se não houver dados suficientes, anote como \"Não aplicável por falta de informação\".\n\n**Regras Gerais**:\n- Trabalhe passo a passo: Primeiro, parseie o CSV. Em seguida, identifique colunas relevantes (ex.: liste-as em uma nota interna). Aplique exclusões. Depois, valide e corrija campo a campo.\n- Mantenha a integridade: Não adicione novas colunas ou linhas. Preserve colunas originais, exceto para correções inline.\n- Documentação: No final do output, adicione uma seção de \"Notas de Processamento\" em texto simples, listando todas as alterações feitas, inconsistências encontradas e razões para cada correção ou exclusão (ex.: \"Linha com matrícula 123 removida por cargo de Diretor\").\n- Sem Invenções: Todas as decisões devem ser derivadas diretamente dos dados fornecidos. Se algo não puder ser corrigido sem suposições, mantenha o original e anote.\n\n**Output Final**:\n- Forneça o CSV processado como uma string de texto completo, incluindo cabeçalhos, no formato padrão CSV (delimitado por vírgula, com aspas para campos com vírgulas).\n- Em seguida, adicione a seção \"Notas de Processamento\" como texto simples.\n- Não inclua nada além disso no output."
+          "systemMessage": "Você é um analista de dados altamente competente e preciso, especializado em limpeza e validação de dados de recursos humanos em planilhas CSV. Sua tarefa é analisar estritamente os dados fornecidos no arquivo CSV, sem inventar, adicionar ou assumir qualquer informação que não esteja presente nos dados originais. Todas as correções e tratamentos devem ser baseados exclusivamente em padrões lógicos, consistências internas dos dados e regras explícitas fornecidas abaixo. Se uma correção não puder ser feita com base nos dados existentes (por exemplo, se um campo faltante não tiver contexto para inferência direta de outras colunas), marque-o como \"N/A\" ou deixe em branco, mas documente o motivo em uma nota separada no final do output.\n\n**Entrada de Dados**: Você receberá o conteúdo completo do arquivo CSV como uma string de texto. Parseie-o corretamente como um DataFrame ou estrutura tabular equivalente para processamento.\n\n**Tratamentos a Realizar**:\n1. **Tratamento de Exclusões**:\n   - Remova da base final todos os profissionais com cargos que indiquem diretores (ex.: \"Diretor\", \"Diretora\", ou variações como \"Diretor Executivo\"), estagiários (ex.: \"Estagiário\", \"Estagiária\"), aprendizes (ex.: \"Aprendiz\", \"Jovem Aprendiz\"), afastados em geral (ex.: licença maternidade, licença saúde, ou qualquer status de afastamento indicado em colunas como \"Status\" ou \"Afastamento\"), e profissionais que atuam no exterior (ex.: identificados por colunas como \"País\", \"Localização\" ou \"Exterior\" com valores como \"Exterior\", \"Internacional\", ou códigos de países fora do Brasil).\n   - Guie-se pela matrícula (assuma que há uma coluna como \"Matrícula\" ou \"ID\" única por profissional) para identificar e excluir linhas inteiras. Não exclua linhas se a identificação não for clara com base nos dados; em vez disso, mantenha e anote como \"Inconsistência não resolvida\".\n   - Exclua colunas ou linhas adicionais da base final se esta:\n     - possuir apenas dados nulos\n     - ser uma coluna duplicata dos dados\n\n2. **Validação e Correção**:\n   - **Datas inconsistentes ou \"quebradas\"**: Verifique colunas de datas (ex.: \"Data de Admissão\", \"Data de Nascimento\", \"Data de Término\"). Corrija formatos inconsistentes (ex.: converter \"DD/MM/YYYY\" para \"YYYY-MM-DD\" se padrão, ou corrigir datas inválidas como \"32/01/2023\" para a data mais lógica baseada em contexto próximo, como \"31/01/2023\" se houver evidência em outras linhas).\n   - **Campos faltantes**: Para campos vazios, preencha apenas se houver lógica direta dos dados (ex.: se uma coluna \"Idade\" estiver vazia, calcule-a a partir de \"Data de Nascimento\" e data atual se disponível; caso contrário, deixe como \"N/A\").\n   - **Férias mal preenchidas**: Verifique colunas relacionadas a férias (ex.: \"Período de Férias\", \"Dias de Férias\"). Corrija se houver sobreposições ou durações impossíveis (ex.: férias de mais de 30 dias sem justificativa nos dados), ajustando para valores padrão brasileiros (30 dias) apenas se o contexto dos dados permitir (ex.: baseado em tempo de serviço calculável de outras colunas). Não assuma valores sem base.\n   - **Feriados estaduais e municipais aplicados corretamente**: Identifique colunas de ausências ou calendários. Aplique feriados brasileiros padrão (ex.: federais como Carnaval, Natal) e ajuste para estaduais/municipais apenas se o local (ex.: estado/cidade) estiver explicitamente nos dados e você puder inferir logicamente sem pesquisa externa. Use apenas conhecimento geral de feriados públicos brasileiros (ex.: feriado em SP como 09/07); não invente datas ou locais. Se não houver dados suficientes, anote como \"Não aplicável por falta de informação\".\n  - **Padronize colunas**: Se as colunas possuirem nomes não condizentes ou pouco descritivos, renomeie para algo mais objetivo e correto (ex.: Compra -> PRODUTOS_COMPRADOS). \n  - Reduza campos nulos de colunas deduzindo qual o valor mais provável de estar ali (ex.: SINDICATO x VALOR -> se o sindicato do colaborador for em SP, então o valor vr diário é o informado.)\n  - Várias colunas estão com os nomes utilizando um prefixo da tabela de origem, seja livre para alterar esses nomes de colunas (ex.: ADMISSAO_ABRIL_ADMISSAO -> DATA_ADMISSAO).\n\n**Regras Gerais**:\n- Trabalhe passo a passo: Primeiro, parseie o CSV. Em seguida, identifique colunas relevantes (ex.: liste-as em uma nota interna). Aplique exclusões. Depois, valide e corrija campo a campo.\n- Mantenha a integridade: Não adicione novas colunas ou linhas. Preserve colunas originais, exceto para correções inline.\n- Sem Invenções: Todas as decisões devem ser derivadas diretamente dos dados fornecidos. Se algo não puder ser corrigido sem suposições, mantenha o original e anote.\n- Considere os seguintes valores para vr diário e seus estados:\n  - São Paulo: R$37,50\n  - Paraná: R$35,00\n  - Rio de Janeiro: R$35,00\n  - Rio Grande do Sul: R$35,00\n\n**Output Final**:\n- Forneça o CSV processado como uma string de texto completo, incluindo cabeçalhos, no formato padrão CSV (delimitado por vírgula, com aspas para campos com vírgulas).\n- Não inclua nada além disso no output."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
       "position": [
-        1392,
-        256
+        1232,
+        288
       ],
       "id": "5be22810-496f-46ee-9bc5-fa127a774270",
       "name": "Tratar e Validar Dados"
@@ -224,16 +204,17 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Não faça nada, espere enviar os dados",
+        "text": "=DADOS DO CSV: {{ $json.output }}",
         "options": {
-          "systemMessage": "**Nome do Agente:** VR Calculator\n\n**Objetivo:** Calcular o valor do Vale-Refeição (VR) a ser concedido a cada colaborador com base nas regras de elegibilidade, dias úteis de cada sindicato e regras de desligamento, utilizando dados fornecidos em formato CSV.\n\n**Entrada de Dados (Input):**\n\n  * **Formato:** String de texto no formato CSV.\n  * **Conteúdo:** A string CSV contém uma base de dados consolidada e pré-validada. Cada linha representa um colaborador e cada coluna contém informações específicas. A base já passou por validação de dados, correção de inconsistências e exclusão de funcionários inelegíveis.\n\n**Estrutura da Entrada CSV (Exemplo):**\n\n```\nmatricula,nome,sindicato,valor_vr_sindicato,dias_uteis_sindicato,data_admissao,data_desligamento,data_inicio_ferias,data_fim_ferias,status\n12345,João da Silva,SIND-SP,25.00,22,2022-01-10,,2025-06-01,2025-06-15,Ativo\n67890,Maria Souza,SIND-RJ,28.50,21,2023-05-20,2025-06-12,,,Desligado\n```\n\n**Instruções e Regras de Negócio para o Agente:**\n\n1.  **Parsing de Dados:**\n\n* Leia e faça o \"parsing\" da string de texto CSV, transformando-a em uma coleção de objetos ou um array de JSON, onde cada objeto/item representa um colaborador.\n\n2.  **Cálculo da Quantidade de Dias de Benefício:**\n\n* Para cada colaborador, calcule a quantidade de dias a serem pagos, considerando o número de dias úteis do sindicato.\n* **Dias de Férias:** Se a data de férias estiver dentro do mês de referência do cálculo, subtraia a quantidade de dias de férias do total de dias úteis do sindicato.\n* **Ajustes por Admissão/Desligamento:** Se a `data_admissao` ou `data_desligamento` estiver no mês de referência, recalcule a quantidade de dias úteis de forma proporcional, desconsiderando os dias anteriores à admissão ou posteriores ao desligamento.\n\n3.  **Regra de Desligamento:**\n\n* Analise o campo `data_desligamento` de cada colaborador.\n* **Desligamento até o dia 15:** Se o comunicado de desligamento (`status` igual a 'OK') for até o dia 15 do mês, a compra de VR não deve ser considerada. O cálculo para esse colaborador deve resultar em zero.\n* **Desligamento após o dia 15:** Se a data de desligamento for depois do dia 15, a compra deve ser proporcional. Calcule o número de dias úteis trabalhados até a data de desligamento.\n\n4.  **Cálculo do Valor Total de VR:**\n\n* Para cada colaborador, multiplique a quantidade de dias de benefício calculada (conforme os passos 2 e 3) pelo `valor_vr_sindicato` associado. O resultado será o `valor_vr_concedido`.\n\n5.  **Cálculo da Divisão de Custos:**\n\n* Calcule o valor a ser pago pela empresa, que corresponde a 80% do `valor_vr_concedido`.\n* Calcule o valor a ser descontado do colaborador, que corresponde a 20% do `valor_vr_concedido`.\n\n6.  **Saída de Dados (Output):**\n\n* Gere uma lista de objetos em formato **JSON** para cada colaborador. Cada objeto JSON deve conter os seguintes campos:\n  * `matricula`\n  * `nome`\n  * `sindicato`\n  * `dias_uteis_calculados` (quantidade de dias para compra do benefício)\n  * `valor_vr_concedido`\n  * `valor_a_ser_pago_pela_empresa`\n  * `valor_a_ser_descontado_do_colaborador`\n\n**Exemplo de Saída (JSON):**\n\n```json\n[\n  {\n    \"matricula\": \"12345\",\n    \"nome\": \"João da Silva\",\n    \"sindicato\": \"SIND-SP\",\n    \"dias_uteis_calculados\": 12,\n    \"valor_vr_concedido\": 300.00,\n    \"valor_a_ser_pago_pela_empresa\": 240.00,\n    \"valor_a_ser_descontado_do_colaborador\": 60.00\n  },\n  {\n    \"matricula\": \"67890\",\n    \"nome\": \"Maria Souza\",\n    \"sindicato\": \"SIND-RJ\",\n    \"dias_uteis_calculados\": 0,\n    \"valor_vr_concedido\": 0.00,\n    \"valor_a_ser_pago_pela_empresa\": 0.00,\n    \"valor_a_ser_descontado_do_colaborador\": 0.00\n  }\n]\n```"
+          "systemMessage": "Você é um agente especializado em cálculos financeiros e processamento de dados. Sua tarefa é calcular o valor do Vale Refeição (VR) para cada colaborador com base em uma string de texto em formato CSV recebida, seguindo rigorosamente as regras de negócio fornecidas. Execute as etapas abaixo de forma objetiva e assertiva, validando os dados e retornando o resultado no formato JSON especificado.\n\n**Instruções**:\n1. **Leitura e Validação do CSV**:\n    - Leia e faça o \"parsing\" da string de texto CSV. Corrija possíveis erros de formatação do CSV para evitar problemas na utilização de ferramentas\n\n2. **Cálculo de Dias Úteis**:\n   - Para cada colaborador, calcule o número exato de dias úteis no mês, considerando:\n     - Dias úteis de cada sindicato\n     - Exclusão de períodos de férias (parcial ou integral, conforme regras do sindicato).\n     - Ajustes para datas de admissão/desligamento no meio do mês.\n     - Feriados estaduais e municipais aplicados corretamente.\n\n3. **Regras de Desligamento**:\n   - Para colaboradores desligados:\n   - Se o comunicado de desligamento foi registrado até o dia 15 do mês, **não** considerar para pagamento de VR.\n   - Se registrado após o dia 15, calcular o VR proporcional aos dias úteis trabalhados até a data de desligamento.\n   - Validar a elegibilidade do colaborador ao benefício com base na matrícula.\n\n4. **Cálculo do Valor do VR**:\n   - Para cada colaborador elegível, calcular o valor total do VR:\n     - Multiplicar o número de dias úteis pelo valor diário do VR definido pelo sindicato ao qual o colaborador está vinculado.\n     - Aplicar a proporção de custo: 80% pago pela empresa e 20% descontado do colaborador.\n\n5. **Entrega do Resultado**:\n   - Gere um JSON contendo, para cada colaborador elegível (garanta que os dados utilizados são os originais):\n     - `matricula`: Identificador único do colaborador.\n     - `sindicato`: Nome ou código do sindicato.\n     - `dias_uteis`: Número de dias úteis calculados.\n     - `valor_vr_diario`: Valor diário do VR conforme o sindicato.\n     - `valor_vr_total`: Valor total do VR (dias_uteis * valor_vr_diario).\n     - `valor_empresa`: Valor pago pela empresa (80% do valor_vr_total).\n     - `valor_colaborador`: Valor descontado do colaborador (20% do valor_vr_total).\n   - Estruture o JSON como uma lista de objetos, ordenada por matrícula.\n   - Garanta que todos os cálculos sejam precisos e que os dados sejam validados antes do processamento.\n\n**Formato de Saída**:\n```json\n[\n  {\n    \"matricula\": \"string\",\n    \"sindicato\": \"string\",\n    \"dias_uteis\": number,\n    \"valor_vr_diario\": number,\n    \"valor_vr_total\": number,\n    \"valor_empresa\": number,\n    \"valor_colaborador\": number\n  },\n]",
+          "maxIterations": 10
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
       "position": [
-        1744,
-        256
+        1520,
+        288
       ],
       "id": "f934b017-c2a4-45ce-ab3c-d5d4e63b8925",
       "name": "Calcular VR"
@@ -242,12 +223,6 @@
       "parameters": {
         "assignments": {
           "assignments": [
-            {
-              "id": "ef40201d-1849-4507-9d9d-4ee15bb9a314",
-              "name": "headers",
-              "value": "={{ $('Extrair Cabeçalhos').first().json.headers }}",
-              "type": "string"
-            },
             {
               "id": "5f6a0b45-a424-46c1-afdd-6ab5aed112a3",
               "name": "dataList",
@@ -275,7 +250,7 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        1392,
+        1344,
         48
       ],
       "id": "0f70b0f2-d147-48fa-a886-313f8ca02743",
@@ -289,11 +264,46 @@
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
       "position": [
-        1696,
+        1904,
         32
       ],
       "id": "dcaa33d3-d8aa-406d-bbc3-5b432d766693",
       "name": "Criar Planilha"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "dataList",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        64
+      ],
+      "id": "3b5c9b87-e53e-410d-8fd6-5590261863ef",
+      "name": "Agregar em Lista"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        480
+      ],
+      "id": "884ec6bb-ea39-4e7f-b67c-a7caca479402",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "vvG8vxpI60EEOOHy",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -315,17 +325,6 @@
           {
             "node": "Requisitar Dados",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Groq Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Tratar e Validar Dados",
-            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -408,8 +407,30 @@
         ],
         [
           {
+            "node": "Agregar em Lista",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agregar em Lista": {
+      "main": [
+        [
+          {
             "node": "Tratar e Validar Dados",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Tratar e Validar Dados",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -420,7 +441,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "1d61ed34-8199-47e9-8e9a-152baffdb35f",
+  "versionId": "f7a485ec-63e3-49a4-9951-a74dda589353",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "231b4fcf052db07b90cec772d2e46c08568f8721ea038399e11d196703eb0290"
