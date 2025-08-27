@@ -9,7 +9,7 @@
 
 O **Agente de Automação para VR** é uma solução que agiliza o processo de cálculo e compra de vales-refeição e alimentação. O projeto automatiza a análise e o tratamento de planilhas com dados de funcionários, calculando os valores de VR/VA para cada um de forma precisa e eficiente.
 
-Este agente autônomo utiliza a API Gemini da Google para interpretar as planilhas e o **n8n** como orquestrador de todo o backend. A interface web, desenvolvida em **Python** (usando o Streamlit), permite que você carregue as planilhas e defina os parâmetros do cálculo.
+Este agente autônomo utiliza a API Gemini da Google para interpretar as planilhas e o **n8n** como orquestrador de todo o backend. A interface web, desenvolvida em **Python** (usando o Streamlit), permite que você ative o fluxo de execução e receba o arquivo para download.
 
 O projeto ainda está em **desenvolvimento**, mas já é totalmente funcional. Ele serve como uma prova de conceito robusta sobre o potencial da automação assistida por IA para otimizar fluxos de trabalho corporativos, especialmente aqueles que envolvem o tratamento de dados em planilhas.
 
@@ -46,7 +46,7 @@ cd automated_mv_agent
 
 ### 🚀 Rodando com Docker Compose
 
-**Renomeie o arquivo .env.example para .env antes de continuar!**
+**Renomeie o arquivo .env.example para .env antes de continuar e altere os campos relevantes!**
 
 Com o Docker instalado e o projeto baixado, navegue até a pasta raiz do projeto no seu terminal e execute o comando adiante, certifique-se de estar vendo o arquivo `compose.yml`. 
 * No Windows, você pode abrir o terminal pesquisando por CMD ou abrir a pasta e na barra de endereço digitar CMD e pressionar `ENTER`.
