@@ -1,4 +1,17 @@
 services:
+  # Banco de dados MySQL para o n8n
+  mysql:
+    image: bitnami/mysql:9.3.0
+    restart: always
+    ports:
+      - '3306:3306'
+    networks:
+      - mainnet
+    env_file:
+      - .env
+    expose:
+      - 3306
+
   # O serviço do n8n exposto na porta 5678
   n8n:
     image: docker.n8n.io/n8nio/n8n
