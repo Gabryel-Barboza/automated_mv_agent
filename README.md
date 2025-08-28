@@ -67,6 +67,8 @@ Este comando irá baixar as imagens do Docker e subir os contêineres do n8n e d
 
 Após subir o projeto, você precisa configurar o n8n para que o agente funcione corretamente.
 
+<img width="1182" height="532" alt="Imagem do fluxo n8n" src="https://github.com/user-attachments/assets/59e12d29-8202-49b5-a8ba-5c1120506585" />
+
 1.  Acesse o n8n pelo seu navegador no endpoint: **`http://localhost:5678`**.
 2.  **Criação da Conta**: Na primeira vez que acessar, o n8n irá pedir para você criar uma conta de usuário. Preencha os campos e crie seu login.
 3.  **Importação do Fluxo**:
@@ -88,6 +90,9 @@ Para desligar o projeto, no terminal pressione as teclas `CTRL` + `C` e depois d
 
 A interface web, construída com Streamlit, permite interagir com o fluxo do n8n de forma simples. Siga os passos abaixo para utilizá-la:
 
+<img width="1193" height="570" alt="Imagem da interface Streamlit" src="https://github.com/user-attachments/assets/de785119-1c4d-408e-b688-8c70f0e1eb7d" />
+
+
 1. **Acesso**:
 
 Acesse a interface em http://localhost:8501 após iniciar os serviços com docker-compose up.
@@ -99,10 +104,10 @@ Clique no botão "Ativar Fluxo n8n" para enviar o sinal de ativação ao webhook
 Um timer de 1 hora será iniciado, exibindo a contagem regressiva no formato MM:SS acima do botão "Verificar Arquivo".
 
 3. **Verificar e Baixar o Arquivo**:
-Após o fluxo do n8n ser executado, clique em "Verificar Arquivo" para consultar o status do arquivo .xlsx gerado.
+Após o fluxo do n8n ser executado, clique em "Verificar Arquivo" para consultar o status do arquivo `.xlsx` gerado.
 Se o arquivo estiver disponível, um botão "Baixar Arquivo" aparecerá, permitindo o download do arquivo diretamente pela interface.
 
 4. **Observações:**
-O timer é reiniciado a cada clique em "Ativar Fluxo n8n".
-Caso ocorra um erro na comunicação com o FastAPI ou n8n, uma mensagem de erro será exibida.
-Arquivos baixados são salvos no volume Docker compartilhado (/app/downloads) e acessíveis via FastAPI.
+* O timer é reiniciado a cada clique em "Ativar Fluxo n8n".
+* Caso ocorra um erro na comunicação com o FastAPI ou n8n, uma mensagem de erro será exibida.
+* Arquivos baixados são salvos no volume Docker compartilhado (`/app/downloads`) e acessíveis via FastAPI.
