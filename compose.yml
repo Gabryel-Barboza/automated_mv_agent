@@ -1,17 +1,4 @@
 services:
-  # Banco de dados MySQL para o n8n
-  mysql:
-    image: bitnami/mysql:9.3.0
-    restart: always
-    ports:
-      - '3306:3306'
-    networks:
-      - mainnet
-    env_file:
-      - .env
-    expose:
-      - 3306
-
   # O serviço do n8n exposto na porta 5678
   n8n:
     image: docker.n8n.io/n8nio/n8n
@@ -31,6 +18,10 @@ services:
   # Servidor de tratamento com Python, exposto na porta 8000. Realiza o Build no arquivo Dockerfile
   fastapi:
     build: .
+    ports:
+      - 8000:8000
+    volumes:
+      - downloads:/app/downloads
     networks:
       - mainnet
     env_file:
@@ -39,9 +30,28 @@ services:
       - 8000
     depends_on: 
       - n8n
-  
+
+  # Interface streamlit
+  streamlit:
+    build: 
+      context: .
+      dockerfile: Dockerfile.streamlit
+    ports:
+      - 8501:8501
+    volumes:
+      - downloads:/app/downloads
+    networks:
+      - mainnet
+    env_file:
+      - .env
+    expose: 
+      - 8501
+    depends_on: 
+      - fastapi
+
 volumes:
   n8n_data:
+  downloads:
 
 networks:
   mainnet:
