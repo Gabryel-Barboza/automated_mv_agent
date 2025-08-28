@@ -13,6 +13,8 @@ Este agente autônomo utiliza a API Gemini da Google para interpretar as planilh
 
 O projeto ainda está em **desenvolvimento**, mas já é totalmente funcional. Ele serve como uma prova de conceito robusta sobre o potencial da automação assistida por IA para otimizar fluxos de trabalho corporativos, especialmente aqueles que envolvem o tratamento de dados em planilhas.
 
+> Por enquanto, o uso do agente está limitado a uma planilha específica que é baixada durante o fluxo.
+
 -----
 
 ## ⚙️ Instalação e Configuração
@@ -44,9 +46,10 @@ cd automated_mv_agent
 3.  Selecione **`Download ZIP`**.
 4.  Extraia o arquivo `automated_mv_agent-main.zip` em uma pasta de sua preferência.
 
+**Renomeie o arquivo .env.example para .env antes de continuar e altere os campos relevantes para sua preferência!**
+
 ### 🚀 Rodando com Docker Compose
 
-**Renomeie o arquivo .env.example para .env antes de continuar e altere os campos relevantes!**
 
 Com o Docker instalado e o projeto baixado, navegue até a pasta raiz do projeto no seu terminal e execute o comando adiante, certifique-se de estar vendo o arquivo `compose.yml`. 
 * No Windows, você pode abrir o terminal pesquisando por CMD ou abrir a pasta e na barra de endereço digitar CMD e pressionar `ENTER`.
@@ -83,4 +86,23 @@ Para desligar o projeto, no terminal pressione as teclas `CTRL` + `C` e depois d
 
 ## 🖥️ Acesso à Interface Web
 
-### TODO
+A interface web, construída com Streamlit, permite interagir com o fluxo do n8n de forma simples. Siga os passos abaixo para utilizá-la:
+
+1. **Acesso**:
+
+Acesse a interface em http://localhost:8501 após iniciar os serviços com docker-compose up.
+Certifique-se de que o serviço Streamlit está rodando no Docker. É possível que ocorra erros de portas já utilizadas, se esse for o caso altere a porta no arquivo `compose.yml`.
+
+2. **Ativar o Fluxo do n8n**:
+
+Clique no botão "Ativar Fluxo n8n" para enviar o sinal de ativação ao webhook do n8n via FastAPI.
+Um timer de 1 hora será iniciado, exibindo a contagem regressiva no formato MM:SS acima do botão "Verificar Arquivo".
+
+3. **Verificar e Baixar o Arquivo**:
+Após o fluxo do n8n ser executado, clique em "Verificar Arquivo" para consultar o status do arquivo .xlsx gerado.
+Se o arquivo estiver disponível, um botão "Baixar Arquivo" aparecerá, permitindo o download do arquivo diretamente pela interface.
+
+4. **Observações:**
+O timer é reiniciado a cada clique em "Ativar Fluxo n8n".
+Caso ocorra um erro na comunicação com o FastAPI ou n8n, uma mensagem de erro será exibida.
+Arquivos baixados são salvos no volume Docker compartilhado (/app/downloads) e acessíveis via FastAPI.
