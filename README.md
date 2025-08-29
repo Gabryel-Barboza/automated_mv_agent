@@ -101,13 +101,14 @@ Certifique-se de que o serviço Streamlit está rodando no Docker. É possível 
 2. **Ativar o Fluxo do n8n**:
 
 Clique no botão "Ativar Fluxo n8n" para enviar o sinal de ativação ao webhook do n8n via FastAPI.
-Um timer de 1 hora será iniciado, exibindo a contagem regressiva no formato MM:SS acima do botão "Verificar Arquivo".
+Um timer de 1 hora será iniciado, exibindo a contagem regressiva acima do botão "Verificar Arquivo".
 
 3. **Verificar e Baixar o Arquivo**:
+
 Após o fluxo do n8n ser executado, clique em "Verificar Arquivo" para consultar o status do arquivo `.xlsx` gerado.
 Se o arquivo estiver disponível, um botão "Baixar Arquivo" aparecerá, permitindo o download do arquivo diretamente pela interface.
 
-4. **Observações:**
+5. **Observações:**
 * O timer é reiniciado a cada clique em "Ativar Fluxo n8n".
 * Caso ocorra um erro na comunicação com o FastAPI ou n8n, uma mensagem de erro será exibida.
 * Arquivos baixados são salvos no volume Docker compartilhado (`/app/downloads`) e acessíveis via FastAPI.
