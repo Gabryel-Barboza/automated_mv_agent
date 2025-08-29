@@ -65,9 +65,10 @@ Este comando irá baixar as imagens do Docker e subir os contêineres do n8n e d
 
 ## 🤖 Configuração do Agente (n8n)
 
-Após subir o projeto, você precisa configurar o n8n para que o agente funcione corretamente.
+<img width="886" height="369" alt="Imagem do fluxo n8n" src="https://github.com/user-attachments/assets/f26c0f96-ca33-434a-ae69-4cc1f91f945a" />
 
-<img width="1182" height="532" alt="Imagem do fluxo n8n" src="https://github.com/user-attachments/assets/59e12d29-8202-49b5-a8ba-5c1120506585" />
+
+Após subir o projeto, você precisa configurar o n8n para que o agente funcione corretamente.
 
 1.  Acesse o n8n pelo seu navegador no endpoint: **`http://localhost:5678`**.
 2.  **Criação da Conta**: Na primeira vez que acessar, o n8n irá pedir para você criar uma conta de usuário. Preencha os campos e crie seu login.
