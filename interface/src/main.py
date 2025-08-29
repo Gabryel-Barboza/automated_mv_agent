@@ -1,14 +1,15 @@
 import os
 from datetime import datetime, timedelta
+from time import sleep
 
 import requests
 import streamlit as st
 
 # Configurações
-FASTAPI_URL = os.getenv("FASTAPI_URL", "http://fastapi:8000")
+FASTAPI_URL = os.getenv('FASTAPI_URL', 'http://fastapi:8000')
 
 # Inicializar estado da sessão para o timer
-if "timer_start" not in st.session_state:
+if 'timer_start' not in st.session_state:
     st.session_state.timer_start = None
     st.session_state.timer_running = False
 
@@ -17,7 +18,24 @@ if "timer_start" not in st.session_state:
 def format_time(seconds):
     mins = seconds // 60
     secs = seconds % 60
-    return f"{mins:02d}:{secs:02d}"
+    return f'{mins:02d}:{secs:02d}'
+
+
+# Timer de execução
+@st.fragment(run_every=1)
+def timer_fragment():
+    if st.session_state.timer_running:
+        time_left = (st.session_state.timer_start - datetime.now()).total_seconds()
+        if time_left > 0:
+            st.markdown(
+                f'<div id="timer">{format_time(int(time_left))}</div>',
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown('<div id="timer">00:00</div>', unsafe_allow_html=True)
+            st.session_state.timer_running = False
+    else:
+        st.markdown('<div id="timer">Não iniciado</div>', unsafe_allow_html=True)
 
 
 # Customização de estilo css
@@ -66,75 +84,75 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Interface de Integração com n8n")
+st.title('Interface de Integração com n8n')
 st.write(
-    "Controle a ativação do fluxo n8n. O arquivo final é retornado quando o processo é concluído com sucesso."
+    'Controle a ativação do fluxo n8n. O arquivo final é retornado quando o processo é concluído com sucesso.'
 )
 
 # Botão para disparar o webhook
-if st.button("Ativar Fluxo"):
+if st.button('Ativar Fluxo'):
     try:
-        response = requests.post(f"{FASTAPI_URL}/activate", json={"activate": True})
+        response = requests.post(f'{FASTAPI_URL}/activate')
         response.raise_for_status()
         result = response.json()
-        if result["status"] == "success":
-            st.success(result["message"])
+
+        if result['status'] == 'success':
+            st.success(result['message'])
 
             # Iniciar o timer de 1 hora
-            st.session_state.timer_start = datetime.now() + timedelta(hours=1)
+            st.session_state.timer_start = datetime.now() + timedelta(hours=1.5)
             st.session_state.timer_running = True
             # Injetar JavaScript para atualizar o timer
             end_time_ms = int(st.session_state.timer_start.timestamp() * 1000)
             st.markdown(
-                f"<script>updateTimer({end_time_ms});</script>", unsafe_allow_html=True
+                f'<script>updateTimer({end_time_ms});</script>', unsafe_allow_html=True
             )
         else:
-            st.error(result["message"])
+            st.error(result['message'])
+
     except requests.exceptions.RequestException as e:
-        st.error(f"Erro ao enviar sinal: {str(e)}")
+        st.error(f'Erro ao enviar sinal: {str(e)}')
     except Exception as e:
         st.error(
-            "Ocorreu um erro ao tentar se conectar com o servidor. Verifique se o seu backend está funcionando corretamente"
+            'Ocorreu um erro ao tentar se conectar com o servidor. Verifique se o seu backend está funcionando corretamente'
         )
         print(e)
 
 # Verificar status do arquivo
-st.subheader("Status do Arquivo")
+st.subheader('Status do Arquivo')
 
-st.write("Tempo médio para processamento de dados: 60 minutos")
+st.write('Tempo médio para processamento de dados: 90 minutos')
 
-# Timer de execução
-if st.session_state.timer_running:
-    time_left = (st.session_state.timer_start - datetime.now()).total_seconds()
-    if time_left > 0:
-        st.markdown(
-            f'<div id="timer">{format_time(int(time_left))}</div>',
-            unsafe_allow_html=True,
-        )
-    else:
-        st.markdown('<div id="timer">00:00</div>', unsafe_allow_html=True)
-        st.session_state.timer_running = False
-else:
-    st.markdown('<div id="timer">Não iniciado</div>', unsafe_allow_html=True)
+timer_fragment()
 
-if st.button("Verificar Arquivo"):
+if st.button('Verificar Arquivo'):
     try:
-        response = requests.get(f"{FASTAPI_URL}/check-file")
+        response = requests.get(f'{FASTAPI_URL}/check-file')
         response.raise_for_status()
+
         file_result = response.json()
-        if file_result["status"] == "success":
-            st.success("Arquivo recebido com sucesso!")
+
+        if file_result['status'] == 'success':
+            st.success('Arquivo recebido com sucesso!')
             st.download_button(
-                label="Baixar Arquivo",
+                label='Baixar Arquivo',
                 data=requests.get(
-                    f"{FASTAPI_URL}/download/{file_result['file_name']}"
+                    f'{FASTAPI_URL}/download/{file_result["file_name"]}'
                 ).content,
-                file_name=file_result["file_name"],
-                mime="application/octet-stream",
+                file_name=file_result['file_name'],
+                mime='application/octet-stream',
             )
-        elif file_result["status"] == "pending":
-            st.info(file_result["message"])
+
+            response = requests.get(f'{FASTAPI_URL}/read_file_sample')
+
+            if response and response.ok:
+                st.write('Amostra dos dados retornados: ')
+                st.table(response.json())
+
+        elif file_result['status'] == 'pending':
+            st.info(file_result['message'])
         else:
-            st.error(file_result["message"])
+            st.error(file_result['message'])
+
     except requests.exceptions.RequestException as e:
-        st.error(f"Erro ao verificar arquivo: {str(e)}")
+        st.error(f'Erro ao verificar arquivo: {str(e)}')
