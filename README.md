@@ -7,6 +7,10 @@
 
 ## 🤖 Sobre o Projeto
 
+<img width="1036" height="505" alt="Imagem exemplo de planilha produto final" src="https://github.com/user-attachments/assets/359d277c-d081-462a-837f-cbe3a50b8e64" />
+
+> Dados de exemplo, planilha criada pelo agente como produto final.
+
 O **Agente de Automação para VR** é uma solução que agiliza o processo de cálculo e compra de vales-refeição e alimentação. O projeto automatiza a análise e o tratamento de planilhas com dados de funcionários, calculando os valores de VR/VA para cada um de forma precisa e eficiente.
 
 Este agente autônomo utiliza a API Gemini da Google para interpretar as planilhas e o **n8n** como orquestrador de todo o backend. A interface web, desenvolvida em **Python** (usando o Streamlit), permite que você ative o fluxo de execução e receba o arquivo para download.
