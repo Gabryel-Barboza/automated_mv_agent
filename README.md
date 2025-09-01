@@ -46,7 +46,7 @@ cd automated_mv_agent
 3.  Selecione **`Download ZIP`**.
 4.  Extraia o arquivo `automated_mv_agent-main.zip` em uma pasta de sua preferência.
 
-**Renomeie o arquivo .env.example para .env antes de continuar e altere os campos relevantes para sua preferência!**
+>**Renomeie o arquivo .env.example para .env antes de continuar e com um editor de texto altere os campos relevantes para sua preferência!**
 
 ### 🚀 Rodando com Docker Compose
 
@@ -74,7 +74,7 @@ Após subir o projeto, você precisa configurar o n8n para que o agente funcione
 2.  **Criação da Conta**: Na primeira vez que acessar, o n8n irá pedir para você criar uma conta de usuário. Preencha os campos e crie seu login.
 3.  **Importação do Fluxo**:
       * Clique no ícone de "fluxo" .
-      * No canto superior direito, clique em **`New`** e depois em **`Import from File`**.
+      * No canto superior direito, clique em **`New`** e depois em **`Import from File`** ou dentro de um fluxo, clique nos três pontinhos e **`Import from File`**.
       * Selecione o arquivo `Agente de Automação VR.json`, que está na pasta raiz do projeto que você baixou.
 4.  **Criação das Credenciais do Gemini**:
       * Clique no menu **`Credentials`** no canto inferior esquerdo.
@@ -109,7 +109,7 @@ Um timer de 1 hora será iniciado, exibindo a contagem regressiva acima do botã
 Após o fluxo do n8n ser executado, clique em "Verificar Arquivo" para consultar o status do arquivo `.xlsx` gerado.
 Se o arquivo estiver disponível, um botão "Baixar Arquivo" aparecerá, permitindo o download do arquivo diretamente pela interface.
 
-5. **Observações:**
+**Observações:**
 * O timer é reiniciado a cada clique em "Ativar Fluxo n8n".
 * Caso ocorra um erro na comunicação com o FastAPI ou n8n, uma mensagem de erro será exibida.
 * Arquivos baixados são salvos no volume Docker compartilhado (`/app/downloads`) e acessíveis via FastAPI.
