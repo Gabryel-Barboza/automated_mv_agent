@@ -25,7 +25,7 @@ O projeto ainda está em **desenvolvimento**, mas já é totalmente funcional. E
 
 ### 🐳 Requisitos
 
-Para rodar o projeto, você precisa ter o **Docker** e o **Docker Compose** instalados na sua máquina.
+Para rodar o projeto, você precisa ter o **Docker** e o **Docker Compose** instalados na sua máquina (por padrão o Docker Compose vem junto ao Docker).
 
   * **Windows**: Baixe o Docker Desktop no [site oficial](https://www.docker.com/products/docker-desktop/).
   * **Linux**: Siga as instruções de instalação para sua distribuição no [site do Docker](https://docs.docker.com/engine/install/).
