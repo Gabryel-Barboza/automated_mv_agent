@@ -75,7 +75,7 @@ Após subir o projeto, você precisa configurar o n8n para que o agente funcione
 3.  **Importação do Fluxo**:
       * Clique no ícone de "fluxo" .
       * No canto superior direito, clique em **`New`** e depois em **`Import from File`**.
-      * Selecione o arquivo `automated_mv_agent.json`, que está na pasta raiz do projeto que você baixou.
+      * Selecione o arquivo `Agente de Automação VR.json`, que está na pasta raiz do projeto que você baixou.
 4.  **Criação das Credenciais do Gemini**:
       * Clique no menu **`Credentials`** no canto inferior esquerdo.
       * Clique em **`New Credential`** e procure por **`Gemini`**.
