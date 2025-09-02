@@ -1,6 +1,6 @@
+import json
 import os
 from datetime import datetime, timedelta
-from time import sleep
 
 import requests
 import streamlit as st
@@ -100,7 +100,7 @@ if st.button('Ativar Fluxo'):
             st.success(result['message'])
 
             # Iniciar o timer de 1 hora
-            st.session_state.timer_start = datetime.now() + timedelta(hours=1.5)
+            st.session_state.timer_start = datetime.now() + timedelta(hours=1)
             st.session_state.timer_running = True
             # Injetar JavaScript para atualizar o timer
             end_time_ms = int(st.session_state.timer_start.timestamp() * 1000)
@@ -121,7 +121,7 @@ if st.button('Ativar Fluxo'):
 # Verificar status do arquivo
 st.subheader('Status do Arquivo')
 
-st.write('Tempo médio para processamento de dados: 90 minutos')
+st.write('Tempo médio para processamento de dados: 60 minutos')
 
 timer_fragment()
 
@@ -143,11 +143,15 @@ if st.button('Verificar Arquivo'):
                 mime='application/octet-stream',
             )
 
-            response = requests.get(f'{FASTAPI_URL}/read_file_sample')
+            # Criando uma visualização simples dos dados processados
+            response = requests.get(
+                f'{FASTAPI_URL}/read_file_sample/{file_result["file_name"]}'
+            )
 
-            if response and response.ok:
+            if response.ok:
                 st.write('Amostra dos dados retornados: ')
-                st.table(response.json())
+                result = response.json()
+                st.dataframe(json.loads(result))
 
         elif file_result['status'] == 'pending':
             st.info(file_result['message'])

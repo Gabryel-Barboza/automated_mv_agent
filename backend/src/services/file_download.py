@@ -46,7 +46,8 @@ def read_file_sample(file_name: str):
     file_path = os.path.join(DOWNLOAD_DIR, file_name)
 
     if os.path.exists(file_path):
-        return pd.read_excel(file_path).head(10).to_dict()
+        sample_file = pd.read_excel(file_path, decimal=',').head(10)
+        return sample_file.to_json(orient='records')
 
 
 def activate_flow():

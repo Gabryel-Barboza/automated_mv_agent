@@ -50,7 +50,7 @@ async def download_file(file_name: str):
 @app.get('/api/read_file_sample/{file_name}', status_code=200)
 async def get_file_sample(file_name: str):
     """Retorna um json do arquivo lido"""
-    content = file_download.read_file_sample()
+    content = file_download.read_file_sample(file_name)
 
     if content:
         return content
