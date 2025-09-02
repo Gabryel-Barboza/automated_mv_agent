@@ -113,6 +113,11 @@ Um timer de 1 hora será iniciado, exibindo a contagem regressiva acima do botã
 Após o fluxo do n8n ser executado, clique em "Verificar Arquivo" para consultar o status do arquivo `.xlsx` gerado.
 Se o arquivo estiver disponível, um botão "Baixar Arquivo" aparecerá, permitindo o download do arquivo diretamente pela interface.
 
+Além disso, uma funcionalidade de pré-visualização do arquivo gerado é ativada retornando uma amostra dos campos disponíveis na planilha.
+
+<img width="775" height="593" alt="Tabela de amostra dos dados" src="https://github.com/user-attachments/assets/629d2ae1-cdbb-464c-b582-22adb15f4958" />
+
+
 **Observações:**
 * O timer é reiniciado a cada clique em "Ativar Fluxo n8n".
 * Caso ocorra um erro na comunicação com o FastAPI ou n8n, uma mensagem de erro será exibida.
