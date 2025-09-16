@@ -77,7 +77,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const dataList = $input.all()[1].json.data\nconsole.log(dataList)\n\nconst output = []\ndataList.forEach((el) => output.push({ data: el }))\nconsole.log(output)\n\nreturn output"
+        "jsCode": "const dataList = $input.all()[1].json.data\n\nconst output = []\ndataList.forEach((el) => output.push({ data: el }))\n\nreturn output"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -91,9 +91,9 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=\nCABEÇALHOS DO CSV: {{ $('Extrair Cabeçalhos').first().json.headers }}\nDADOS DO CSV: {{ $json.data }}",
+        "text": "=CABEÇALHOS DO CSV: {{ $('Extrair Cabeçalhos').first().json.headers }}\nDADOS DO CSV: {{ $json.data }}",
         "options": {
-          "systemMessage": "Você é um analista de dados altamente competente e preciso, especializado em limpeza e validação de dados de recursos humanos em planilhas CSV. Sua tarefa é analisar estritamente os dados fornecidos no arquivo CSV, sem inventar, adicionar ou assumir qualquer informação que não esteja presente nos dados originais. Todas as correções e tratamentos devem ser baseados exclusivamente em padrões lógicos, consistências internas dos dados e regras explícitas fornecidas abaixo. Se uma correção não puder ser feita com base nos dados existentes (por exemplo, se um campo faltante não tiver contexto para inferência direta de outras colunas), marque-o como \"N/A\".\n\n**Entrada de Dados**: Você receberá o conteúdo completo do arquivo CSV como uma string de texto. Parseie-o corretamente como uma estrutura tabular equivalente para processamento.\n\n**Tratamentos a Realizar**:\n1. **Tratamento de Exclusões**:\n   - Remova da base final todos os profissionais com cargos que indiquem diretores (ex.: \"Diretor\", \"Diretora\", ou variações como \"Diretor Executivo\"), estagiários (ex.: \"Estagiário\", \"Estagiária\"), aprendizes (ex.: \"Aprendiz\", \"Jovem Aprendiz\"), afastados em geral (ex.: licença maternidade, licença saúde, ou qualquer status de afastamento indicado em colunas como \"Status\" ou \"Afastamento\"), e profissionais que atuam no exterior (ex.: identificados por colunas como \"País\", \"Localização\" ou \"Exterior\" com valores como \"Exterior\", \"Internacional\", ou códigos de países fora do Brasil).\n   - Guie-se pela matrícula (assuma que há uma coluna como \"Matrícula\" ou \"ID\" única por profissional) para identificar e excluir linhas inteiras. Não exclua linhas se a identificação não for clara com base nos dados; em vez disso, mantenha e anote como \"N/A\".\n   - Exclua colunas ou linhas adicionais da base final se esta:\n     - ser uma coluna inválida, que não existam dados.\n     - ser uma coluna duplicata dos dados.\n     - ser uma coluna sem nome e sem sentido.\n  - O tratamento deve ser feito para todos os registros. Não pule registros sem verificar as condições estabelecidas.\n\n2. **Validação e Correção**:\n   - **Datas inconsistentes ou \"quebradas\"**: Verifique colunas de datas (ex.: \"Data de Admissão\", \"Data de Nascimento\", \"Data de Término\"). Corrija formatos inconsistentes (ex.: converter \"DD/MM/YYYY\" para \"YYYY-MM-DD\" se padrão, ou corrigir datas inválidas como \"32/01/2023\" para a data mais lógica baseada em contexto próximo, como \"31/01/2023\" se houver evidência em outras linhas).\n   - **Campos faltantes**: Para campos vazios, preencha apenas se houver lógica direta dos dados (ex.: se uma coluna \"Idade\" estiver vazia, calcule-a a partir de \"Data de Nascimento\" e data atual se disponível; caso contrário, deixe como \"N/A\").\n   - **Férias mal preenchidas**: Verifique colunas relacionadas a férias (ex.: \"Período de Férias\", \"Dias de Férias\"). Corrija se houver sobreposições ou durações impossíveis (ex.: férias de mais de 30 dias sem justificativa nos dados), ajustando para valores padrão brasileiros (30 dias) apenas se o contexto dos dados permitir (ex.: baseado em tempo de serviço calculável de outras colunas). Não assuma valores sem base.\n   - **Feriados estaduais e municipais aplicados corretamente**: Identifique colunas de ausências ou calendários. Aplique feriados brasileiros padrão (ex.: federais como Carnaval, Natal) e ajuste para estaduais/municipais apenas se o local (ex.: estado/cidade) estiver explicitamente nos dados e você puder inferir logicamente sem pesquisa externa. Use apenas conhecimento geral de feriados públicos brasileiros (ex.: feriado em SP como 09/07); não invente datas ou locais. Se não houver dados suficientes, anote como \"Não aplicável por falta de informação\".\n  - **Padronize colunas**: Se as colunas possuirem nomes não condizentes ou pouco descritivos, renomeie para algo mais objetivo e entendível de acordo com os dados (ex.: Compra -> PRODUTOS_COMPRADOS, ADMISSAO_ABRIL_ADMISSAO -> DATA_ADMISSAO). \n  - Reduza campos nulos de colunas deduzindo qual o valor mais provável de estar ali (ex.: SINDICATO x VALOR -> se o sindicato do colaborador for em SP, então o valor VR diário é consultado da tabela de referência de valores do sindicato.)\n\n**Regras Gerais**:\n- Trabalhe passo a passo: Primeiro, parseie o CSV. Em seguida, identifique colunas relevantes (ex.: liste-as em uma nota interna). Aplique exclusões. Depois, valide e corrija campo a campo.\n- Mantenha a integridade: Não adicione novas colunas ou linhas sem necessidade. Preserve colunas originais, exceto para correções inline.\n- Sem Invenções: Todas as decisões devem ser derivadas diretamente dos dados fornecidos. Se algo não puder ser corrigido sem suposições, mantenha o original e anote.\n- Considere os seguintes valores da tabela de referência para VR diário e seus estados, complete colunas nulas com esses valores de acordo com o estado ou sindicato:\n  - São Paulo: R$37,50\n  - Paraná: R$35,00\n  - Rio de Janeiro: R$35,00\n  - Rio Grande do Sul: R$35,00\n\n**Output Final**:\n- Forneça o CSV processado como uma string de texto completo, incluindo cabeçalhos, no formato padrão CSV (delimitado por ponto e vírgula).\n- Não inclua nada além disso no output."
+          "systemMessage": "You are a highly competent data analyst. Your task is to clean and validate HR data from a provided CSV string, adhering strictly to the rules below. Do not invent or assume any information not present in the original data. All corrections must be based exclusively on logical patterns, internal data consistency, and the explicit rules provided. If a correction is not possible, mark the field as \"N/A\".\n\n**Input:** The full content of a CSV file as a text string.\n\n**Instructions**:\n1.  **Exclusion**:\n    * Remove all rows for directors, interns, apprentices, employees on leave (e.g., \"Afastamento\" column), and professionals working abroad (e.g., \"País\" or \"Localização\" shows \"Exterior\", \"International\", or non-Brazilian country codes). Use the unique employee ID (e.g., \"Matrícula\") for row identification.\n    * Exclude invalid, duplicate, or unnamed columns.\n\n2.  **Data Validation and Correction**:\n    * **Dates**: Standardize all date formats to **YYYY-MM-DD**. Correct inconsistent or logically impossible dates based on a pattern from nearby data (e.g., \"32/01/2023\" becomes \"31/01/2023\").\n    * **Missing Fields**: Fill empty fields only if the value can be directly deduced from other data (e.g., calculate \"Idade\" from \"Data de Nascimento\"). Otherwise, set to \"N/A\".\n    * **Vacation**: Check for impossible vacation durations or overlaps. Adjust only if the data provides a clear basis.\n    * **Holidays**: Do not correct or fill holiday dates unless the data explicitly provides location and a common holiday can be logically inferred (e.g., holiday in São Paulo).\n    * **Column Names**: Standardize column names to be objective and clear (e.g., \"Compra\" -> \"PRODUTOS_COMPRADOS\").\n    * **Meal Allowance (VR)**: Use the reference table below to fill in missing VR values based on the employee's state or union.\n        * São Paulo: R$37,50\n        * Paraná: R$35,00\n        * Rio de Janeiro: R$35,00\n        * Rio Grande do Sul: R$35,00\n\n**Final Output**:\n* Provide the processed data as a single CSV string, using semicolons as delimiters and including headers. No additional text, explanations, or code should be included."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -111,8 +111,7 @@
         "promptType": "define",
         "text": "=DADOS DO CSV: {{ $json.output }}",
         "options": {
-          "systemMessage": "Você é um agente especializado em cálculos financeiros e processamento de dados. Sua tarefa é calcular o valor do Vale Refeição (VR) para cada colaborador com base em uma string de texto em formato CSV recebida, seguindo rigorosamente as regras de negócio fornecidas. Execute as etapas abaixo de forma objetiva e assertiva, validando os dados e retornando o resultado no formato JSON especificado.\n\n**Instruções**:\n1. **Leitura e Validação do CSV**:\n    - Leia e faça o \"parsing\" da string de texto CSV. Corrija possíveis erros de formatação do CSV para facilitar a leitura\n\n2. **Cálculo de Dias Úteis**:\n   - Para cada colaborador, calcule o número exato de dias úteis no mês, considerando:\n     - Dias úteis de cada sindicato\n     - Exclusão de períodos de férias (parcial ou integral, conforme regras do sindicato).\n     - Ajustes para datas de admissão/desligamento no meio do mês.\n     - Feriados estaduais e municipais aplicados corretamente.\n\n3. **Regras de Desligamento**:\n   - Para colaboradores desligados:\n   - Se o comunicado de desligamento foi registrado até o dia 15 do mês, **não** considerar para pagamento de VR.\n   - Se registrado após o dia 15, calcular o VR proporcional aos dias úteis trabalhados até a data de desligamento.\n   - Validar a elegibilidade do colaborador ao benefício com base na matrícula.\n\n4. **Cálculo do Valor do VR**:\n   - Para cada colaborador elegível, calcular o valor total do VR.\n   - Se o campo valor_vr_diario for nulo, considere os seguintes valores para VR diário de acordo com o estado, complete colunas nulas com esses valores utilizando o sindicato como referência:\n  - São Paulo: R$37,50\n  - Paraná: R$35,00\n  - Rio de Janeiro: R$35,00\n  - Rio Grande do Sul: R$35,00\n     - Multiplicar o número de dias úteis pelo valor diário do VR definido pelo sindicato ao qual o colaborador está vinculado.\n     - Aplicar a proporção de custo: 80% pago pela empresa e 20% descontado do colaborador.\n\n5. **Entrega do Resultado**:\n   - Gere um JSON contendo, para cada colaborador elegível (garanta que os dados utilizados são os originais):\n     - `matricula`: Identificador único do colaborador.\n     - `sindicato`: Nome ou código do sindicato.\n     - `dias_uteis_trabalhados`: Número de dias úteis calculados.\n     - `valor_vr_diario`: Valor diário do VR conforme o sindicato.\n     - `valor_vr_total`: Valor total do VR (dias_uteis * valor_vr_diario).\n     - `custo_empresa`: Valor pago pela empresa (80% do valor_vr_total).\n     - `desconto_colaborador`: Valor descontado do colaborador (20% do valor_vr_total).\n   - Garanta que todos os cálculos sejam precisos e que os dados sejam validados antes do processamento.\n\n**Saída**: \n* Sua saída deve conter apenas os dados do csv após o tratamento, não inclua explicações no corpo.\n* Não invente informações, se não receber os dados para análise retorne um JSON vazio: \"{}\".\n\n**Formato de Saída**:\n\n* Utilize o formato JSON.\n* Utilize os mesmos nomes de campos do exemplo.\n\n* Exemplo:\n[\n  {\n    matricula: 12345,\n    sindicato: SINDPPD RS,\n    dias_uteis_trabalhados: 20,\n    valor_vr_diario_reais: 35,00,\n    valor_vr_total_reais: 700,00,\n    custo_empresa_reais: 560,00,\n    desconto_colaborador_reais: 140,00\n  },\n  {\n    matricula: 12345,\n    sindicato: SINDPPD RS,\n    dias_uteis_trabalhados: 20,\n    valor_vr_diario_reais: 35,00,\n    valor_vr_total_reais: 700,00,\n    custo_empresa_reais: 560,00,\n    desconto_colaborador_reais: 140,00\n  }\n]",
-          "maxIterations": 10
+          "systemMessage": "You are a specialized agent in financial calculations and data processing. Your task is to calculate the Meal Voucher (VR) amount for each employee, based on a CSV-formatted text string. Follow the business rules precisely and return the result as a CSV string. Do not invent or assume any information; all calculations must be based exclusively on the provided data. The payment month is May 2025.\n\n**Input**: The full content of a CSV file as a text string.\n\n**Business Rules**:\n* **VR Amount by Union**: Use the following daily VR values, completing nulls with them based on the union/state:\n    * São Paulo: R$37,50\n    * Paraná: R$35,00\n    * Rio de Janeiro: R$35,00\n    * Rio Grande do Sul: R$35,00\n* **Business Days Calculation**:\n    * Calculate the exact number of business days for each employee in May 2025.\n    * Exclude vacation periods and adjust for mid-month hiring/termination dates.\n    * Consider state and municipal holidays.\n* **Termination Rules**:\n    * If an employee was terminated on or before the 15th of the month, do not consider them for VR payment.\n    * If terminated after the 15th, calculate VR proportionally to the business days worked until the termination date.\n* **Cost Proportion**: The company pays 80% of the total VR, and 20% is deducted from the employee.\n* Use the format YYYY/MM/DD for dates and the european decimal delimiter \",\".\n\n**Output**:\nGenerate a semicolon-delimited CSV string with the following headers for each eligible employee:\n`MATRICULA;DATA DE ADMISSAO;SINDICATO;COMPETENCIA;DIAS UTEIS TRABALHADOS;VR DIARIO - R$;VALOR TOTAL - R$;CUSTO EMPRESA - R$;DESCONTO PROFISSIONAL - R$`\n\nEnsure the output contains only the CSV data; do not include any other text or explanations. If no data is provided, return an empty string.\n\n**Output**\n\nMATRICULA;DATA DE ADMISSAO;SINDICATO;COMPETENCIA;DIAS UTEIS TRABALHADOS;VR DIARIO - R$;VALOR TOTAL - R$;CUSTO EMPRESA - R$;DESCONTO PROFISSIONAL - R$\n34941;N/A;SINDPD SP - SIND.TRAB.EM PROC DADOS E EMPR.EMPRESAS PROC DADOS ESTADO DE SP.;05/2025;22;37,50;825,00;660,00;165,00"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -149,7 +148,7 @@
     },
     {
       "parameters": {
-        "batchSize": 200,
+        "batchSize": 100,
         "options": {}
       },
       "type": "n8n-nodes-base.splitInBatches",
@@ -164,7 +163,10 @@
     {
       "parameters": {
         "operation": "xlsx",
-        "options": {}
+        "options": {
+          "headerRow": true,
+          "sheetName": "VR_MENSAL"
+        }
       },
       "type": "n8n-nodes-base.convertToFile",
       "typeVersion": 1.1,
@@ -189,26 +191,6 @@
       ],
       "id": "fed4ff2c-980e-4d39-a2a4-39b06df093a4",
       "name": "Sticky Note5"
-    },
-    {
-      "parameters": {
-        "modelName": "models/gemini-2.5-pro",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
-      "position": [
-        1200,
-        784
-      ],
-      "id": "8eea38bc-3333-4cfd-bcf0-eadd24ebaa6b",
-      "name": "Gemini 2.5 Pro 2",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "vvG8vxpI60EEOOHy",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
     },
     {
       "parameters": {
@@ -280,26 +262,6 @@
     },
     {
       "parameters": {
-        "modelName": "models/gemini-2.5-pro",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
-      "position": [
-        896,
-        784
-      ],
-      "id": "ce579236-f6b2-4987-bcca-00c3aab2be0d",
-      "name": "Gemini 2.5 Pro",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "vvG8vxpI60EEOOHy",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "path": "activate/status",
         "responseMode": "responseNode",
         "options": {}
@@ -334,7 +296,7 @@
     },
     {
       "parameters": {
-        "content": "# Agentes\n\n* Esse segmento é responsável por enviar os itens para os agentes\n* Cada agente irá tratar os dados conforme o que foi descrio no prompt.\n* Técnicas de engenharia de prompt foram aplicadas para restringir o agente a realizar a tarefa corretamente.\n* Após o cálculo final de VR, os dados são parseados para o formato JSON e retornados ao segmento de criação da planilha.",
+        "content": "# Agentes\n\n* Esse segmento é responsável por enviar os itens para os agentes\n* Cada agente irá tratar os dados conforme o que foi descrito no prompt.\n* Técnicas de engenharia de prompt foram aplicadas para restringir o agente a realizar a tarefa corretamente.\n* Após o cálculo final de VR, os dados são parseados para o formato JSON e retornados ao segmento de criação da planilha.",
         "height": 320,
         "width": 384
       },
@@ -396,7 +358,8 @@
     },
     {
       "parameters": {
-        "jsCode": "try {\n  let data = $input.first().json.output.replaceAll(/json*/g, '').replaceAll('`', '');\n  \n  const parsed_json = JSON.parse(data);\n\n  if (Object.keys(parsed_json)) {\n    for (const key of parsed_json) {\n      console.log(key);\n    }\n    \n    return parsed_json;\n  }\n} catch (e) {\n  console.log(e)\n  return {}\n}"
+        "language": "python",
+        "pythonCode": "import pandas as pd\nimport json\nimport io\n\ntry:\n  # Tratando e convertendo os dados para o formato de objeto\n  data = _input.first().json.output.replace('`', '').replace('csv', '').rstrip(';')\n  parsed_data = io.StringIO(data)\n\n  # Lendo o objeto, tratando com pandas e convertendo para um dicionário\n  df = pd.read_csv(\n    parsed_data, \n    sep=';', \n    decimal=',', \n    encoding='utf-8', \n    dtype={\n      'MATRICULA': str,\n      'DATA DE ADMISSAO': str,\n      'VR DIARIO - R$': float, \n      'VALOR TOTAL - R$': float, \n      'CUSTO EMPRESA - R$': float,\n      'DESCONTO PROFISSIONAL - R$': float\n    },\n    parse_dates=['DATA DE ADMISSAO'],\n    date_parser=lambda x: pd.to_datetime(x, format='%Y/%m/%d', errors='coerce')\n  )\n\n  df['DATA DE ADMISSAO'] = df['DATA DE ADMISSAO'].replace('NaT', '')\n\n  # Adicione colunas aqui para serem excluídas da base final\n  drop_list = []\n  df.drop([col for col in drop_list if col in df.columns], axis=1)\n  # Records para exportar no padrão JSON\n  data = df.to_dict(orient=\"records\")\n\nexcept Exception as e:\n  print(f'Error: \\n{e}')\n  data = {}\nfinally:\n  return data"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -405,7 +368,52 @@
         576
       ],
       "id": "38a59298-fe89-4ed6-8772-754fc55e140d",
-      "name": "JSON Parser"
+      "name": "JSON Parser",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        896,
+        784
+      ],
+      "id": "ce579236-f6b2-4987-bcca-00c3aab2be0d",
+      "name": "Gemini 2.5 Flash",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0TgrYJM7ORUaNjlJ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        784
+      ],
+      "id": "8eea38bc-3333-4cfd-bcf0-eadd24ebaa6b",
+      "name": "Gemini 2.5 Flash 2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0TgrYJM7ORUaNjlJ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -494,17 +502,6 @@
         ]
       ]
     },
-    "Gemini 2.5 Pro 2": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Calcular VR",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Criar Planilha": {
       "main": [
         [
@@ -549,17 +546,6 @@
         ]
       ]
     },
-    "Gemini 2.5 Pro": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Tratar e Validar Dados",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Webhook File": {
       "main": [
         [
@@ -592,6 +578,28 @@
           }
         ]
       ]
+    },
+    "Gemini 2.5 Flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Tratar e Validar Dados",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5 Flash 2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calcular VR",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -600,7 +608,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "executionTimeout": -1
   },
-  "versionId": "fa8eb353-9312-462c-b3dc-d956826f363e",
+  "versionId": "85250ff1-cda9-4f0b-8586-1b24a7bb7459",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "231b4fcf052db07b90cec772d2e46c08568f8721ea038399e11d196703eb0290"
