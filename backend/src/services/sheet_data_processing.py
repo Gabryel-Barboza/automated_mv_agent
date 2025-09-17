@@ -187,7 +187,7 @@ def start():
         if chave == 'SINDICATO' and 'SINDICATO' not in merge_df.columns:
             merge_df['SINDICATO'] = pd.NA
 
-        consolidado = pd.merge(consolidado, merge_df, on=chave, how='left')
+        consolidado = pd.merge(consolidado, merge_df, on=chave, how='outer')
 
     # ETAPA 3 - salvar csv
     output = io.StringIO()
