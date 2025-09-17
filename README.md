@@ -4,6 +4,7 @@
 * [Instalação e Configuração](https://github.com/Gabryel-Barboza/automated_mv_agent/tree/main?tab=readme-ov-file#%EF%B8%8F-instala%C3%A7%C3%A3o-e-configura%C3%A7%C3%A3o)
 * [Configuração do Agente (n8n)](https://github.com/Gabryel-Barboza/automated_mv_agent/tree/main?tab=readme-ov-file#%EF%B8%8F-instala%C3%A7%C3%A3o-e-configura%C3%A7%C3%A3o)
 * [Acessando a Interface Web](https://github.com/Gabryel-Barboza/automated_mv_agent/tree/main?tab=readme-ov-file#%EF%B8%8F-acesso-%C3%A0-interface-web)
+* [Considerações na Execução do Projeto](https://github.com/Gabryel-Barboza/automated_mv_agent/edit/main/README.md#considerações-na-execução-do-projeto)
 
 ## 🤖 Sobre o Projeto
 
@@ -118,7 +119,7 @@ Além disso, uma funcionalidade de pré-visualização do arquivo gerado é ativ
 <img width="775" height="593" alt="Tabela de amostra dos dados" src="https://github.com/user-attachments/assets/629d2ae1-cdbb-464c-b582-22adb15f4958" />
 
 
-# Considerações na Execução do Projeto
+## Considerações na Execução do Projeto
 * O arquivo `.env.example` deve ter sido renomeado para `.env`.
 * A versão mais recente do n8n foi utilizada.
 * É possível que na importação do flow n8n, o nó "Requisitar Dados" esteja com a URL errada. Adicione duas barras "//" na frente de `http:`.
