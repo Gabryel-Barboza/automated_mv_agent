@@ -118,7 +118,11 @@ Além disso, uma funcionalidade de pré-visualização do arquivo gerado é ativ
 <img width="775" height="593" alt="Tabela de amostra dos dados" src="https://github.com/user-attachments/assets/629d2ae1-cdbb-464c-b582-22adb15f4958" />
 
 
-**Observações:**
+# Considerações na Execução do Projeto
+* O arquivo `.env.example` deve ter sido renomeado para `.env`.
+* A versão mais recente do n8n foi utilizada.
+* É possível que na importação do flow n8n, o nó "Requisitar Dados" esteja com a URL errada. Adicione duas barras "//" na frente de `http:`.
+* Desative `timeout workflow` nas configurações dentro do fluxo, nos três pontinhos ao lado de *save* e em *settings*.
 * O timer é reiniciado a cada clique em "Ativar Fluxo n8n".
 * Caso ocorra um erro na comunicação com o FastAPI ou n8n, uma mensagem de erro será exibida.
 * Arquivos baixados são salvos no volume Docker compartilhado (`/app/downloads`) e acessíveis via FastAPI.
