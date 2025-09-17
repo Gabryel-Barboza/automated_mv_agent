@@ -18,7 +18,7 @@
     },
     {
       "parameters": {
-        "url": "http:fastapi:8000/api/upload",
+        "url": "http://fastapi:8000/api/upload",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -613,7 +613,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "executionTimeout": -1
   },
-  "versionId": "8b93eb1a-48e5-44f2-8cf4-1d7df8dfbd88",
+  "versionId": "335764fc-ed49-429d-8f80-29fbc50a5584",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "231b4fcf052db07b90cec772d2e46c08568f8721ea038399e11d196703eb0290"
