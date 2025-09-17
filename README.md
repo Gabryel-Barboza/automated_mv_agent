@@ -122,7 +122,7 @@ Além disso, uma funcionalidade de pré-visualização do arquivo gerado é ativ
 ## Considerações na Execução do Projeto
 * O arquivo `.env.example` deve ter sido renomeado para `.env`.
 * A versão mais recente do n8n foi utilizada.
-* É possível que na importação do flow n8n, o nó "Requisitar Dados" esteja com a URL errada. Adicione duas barras "//" na frente de `http:`.
+* É possível que na importação do flow n8n, o nó "Requisitar Dados" esteja com a URL errada. Adicione duas barras "//" na frente de `http:`: `http://fastapi:8000/api/upload`.
 * Desative `timeout workflow` nas configurações dentro do fluxo, nos três pontinhos ao lado de *save* e em *settings*.
 * O timer é reiniciado a cada clique em "Ativar Fluxo n8n".
 * Caso ocorra um erro na comunicação com o FastAPI ou n8n, uma mensagem de erro será exibida.
