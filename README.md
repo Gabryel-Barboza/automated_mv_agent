@@ -4,7 +4,7 @@
 * [Instalação e Configuração](https://github.com/Gabryel-Barboza/automated_mv_agent/tree/main?tab=readme-ov-file#%EF%B8%8F-instala%C3%A7%C3%A3o-e-configura%C3%A7%C3%A3o)
 * [Configuração do Agente (n8n)](https://github.com/Gabryel-Barboza/automated_mv_agent/tree/main?tab=readme-ov-file#%EF%B8%8F-instala%C3%A7%C3%A3o-e-configura%C3%A7%C3%A3o)
 * [Acessando a Interface Web](https://github.com/Gabryel-Barboza/automated_mv_agent/tree/main?tab=readme-ov-file#%EF%B8%8F-acesso-%C3%A0-interface-web)
-* [Considerações na Execução do Projeto](https://github.com/Gabryel-Barboza/automated_mv_agent/edit/main/README.md#considerações-na-execução-do-projeto)
+* [Considerações na Execução do Projeto](https://github.com/Gabryel-Barboza/automated_mv_agent/blob/main/README.md#considerações-na-execução-do-projeto)
 
 ## 🤖 Sobre o Projeto
 
