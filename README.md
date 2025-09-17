@@ -7,7 +7,7 @@
 
 ## 🤖 Sobre o Projeto
 
-<img width="1036" height="505" alt="Imagem exemplo de planilha produto final" src="https://github.com/user-attachments/assets/359d277c-d081-462a-837f-cbe3a50b8e64" />
+<img width="1211" height="510" alt="Captura de tela de 2025-09-17 13-29-15" src="https://github.com/user-attachments/assets/989631e0-8faa-469b-b4ff-67ba70c74ade" />
 
 > Dados de exemplo, planilha criada pelo agente como produto final.
 
