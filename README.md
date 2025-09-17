@@ -17,7 +17,7 @@ Este agente autônomo utiliza a API Gemini da Google para interpretar as planilh
 
 O projeto ainda está em **desenvolvimento**, mas já é totalmente funcional. Ele serve como uma prova de conceito robusta sobre o potencial da automação assistida por IA para otimizar fluxos de trabalho corporativos, especialmente aqueles que envolvem o tratamento de dados em planilhas.
 
-> Por enquanto, o uso do agente está limitado a uma planilha específica que é baixada durante o fluxo.
+> Por enquanto, o uso do agente está limitado a um pacote de planilhas específico que é baixado durante o fluxo.
 
 -----
 
