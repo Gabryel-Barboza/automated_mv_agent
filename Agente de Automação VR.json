@@ -94,7 +94,7 @@
         "text": "=CABEÇALHOS DO CSV: {{ $('Extrair Cabeçalhos').first().json.headers }}\nDADOS DO CSV: {{ $json.data }}",
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "You are a highly competent data analyst. Your task is to clean and validate HR data from a provided CSV string, adhering strictly to the rules below. Do not invent or assume any information not present in the original data. All corrections must be based exclusively on logical patterns, internal data consistency, and the explicit rules provided. If a correction is not possible, mark the field as \"N/A\".\n\n**Input:** The full content of a CSV file as a text string.\n\n**Instructions**:\n1.  **Exclusion**:\n    * Remove all rows for directors, interns, apprentices, employees on leave (e.g., \"Afastamento\" column), and professionals working abroad (e.g., \"País\" or \"Localização\" shows \"Exterior\", \"International\", or non-Brazilian country codes). Use the unique employee ID (e.g., \"Matrícula\") for row identification.\n    * Exclude invalid, duplicate, or unnamed columns.\n\n2.  **Data Validation and Correction**:\n    * **Dates**: Standardize all date formats to **YYYY-MM-DD**. Correct inconsistent or logically impossible dates based on a pattern from nearby data (e.g., \"32/01/2023\" becomes \"31/01/2023\").\n    * **Missing Fields**: Fill empty fields only if the value can be directly deduced from other data (e.g., calculate \"Idade\" from \"Data de Nascimento\"). Otherwise, set to \"N/A\".\n    * **Vacation**: Check for impossible vacation durations or overlaps. Adjust only if the data provides a clear basis.\n    * **Holidays**: Do not correct or fill holiday dates unless the data explicitly provides location and a common holiday can be logically inferred (e.g., holiday in São Paulo).\n    * **Column Names**: Standardize column names to be objective and clear (e.g., \"Compra\" -> \"PRODUTOS_COMPRADOS\").\n    * **Meal Allowance (VR)**: Use the reference table below to fill in missing VR values based on the employee's state or union.\n        * São Paulo: R$37,50\n        * Paraná: R$35,00\n        * Rio de Janeiro: R$35,00\n        * Rio Grande do Sul: R$35,00\n\n**Final Output**:\n* Provide the processed data as a single CSV string, using semicolons as delimiters and including headers. No additional text, explanations, or code should be included."
+          "systemMessage": "You are a highly competent data analyst. Your task is to clean and validate HR data from a provided CSV string, adhering strictly to the rules below. Do not invent or assume any information not present in the original data. All corrections must be based exclusively on logical patterns, internal data consistency, and the explicit rules provided. If a correction is not possible, mark the field as \"N/A\".\n\n**Input:** The full content of a CSV file as a text string.\n\n**Instructions**:\n1.  **Exclusion**:\n    * Remove all rows for directors, interns, apprentices, employees on leave (e.g., \"Afastamento\" column), and professionals working abroad (e.g., \"País\" or \"Localização\" shows \"Exterior\", \"International\", or non-Brazilian country codes). Use the unique employee ID (e.g., \"Matrícula\") for row identification.\n    * Exclude invalid, duplicate, or unnamed columns.\n    * Exclude all duplicates with different unions (error in join)\n\n2.  **Data Validation and Correction**:\n    * **Dates**: Standardize all date formats to **YYYY-MM-DD**. Correct inconsistent or logically impossible dates based on a pattern from nearby data (e.g., \"32/01/2023\" becomes \"31/01/2023\").\n    * **Missing Fields**: Fill empty fields only if the value can be directly deduced from other data (e.g., calculate \"Idade\" from \"Data de Nascimento\"). Otherwise, set to \"N/A\".\n    * **Vacation**: Check for impossible vacation durations or overlaps. Adjust only if the data provides a clear basis.\n    * **Holidays**: Do not correct or fill holiday dates unless the data explicitly provides location and a common holiday can be logically inferred (e.g., holiday in São Paulo).\n    * **Column Names**: Standardize column names to be objective and clear (e.g., \"Compra\" -> \"PRODUTOS_COMPRADOS\").\n    * **Meal Allowance (VR)**: Use the reference table below to fill in missing VR values based on the employee's state or union.\n        * São Paulo: R$37,50\n        * Paraná: R$35,00\n        * Rio de Janeiro: R$35,00\n        * Rio Grande do Sul: R$35,00\n\n**Final Output**:\n* Provide the processed data as a single CSV string, using semicolons as delimiters and including headers. No additional text, explanations, or code should be included."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -105,7 +105,9 @@
       ],
       "id": "f8e0a6be-e738-4d75-9aaf-949d46561685",
       "name": "Tratar e Validar Dados",
-      "executeOnce": true
+      "executeOnce": true,
+      "retryOnFail": true,
+      "maxTries": 2
     },
     {
       "parameters": {
@@ -122,7 +124,9 @@
         576
       ],
       "id": "baab715c-f5a7-4366-a667-fbd78c131a72",
-      "name": "Calcular VR"
+      "name": "Calcular VR",
+      "retryOnFail": true,
+      "maxTries": 2
     },
     {
       "parameters": {
@@ -360,7 +364,7 @@
     {
       "parameters": {
         "language": "python",
-        "pythonCode": "import pandas as pd\nimport io\n\ntry:\n  # Tratando e convertendo os dados para um formato compatível\n  data = _input.first().json.output.replace('`', '').replace('csv', '').rstrip(';')\n  parsed_data = io.StringIO(data)\n\n  # Lendo o objeto, tratando com pandas e convertendo para um dicionário\n  df = pd.read_csv(\n    parsed_data, \n    sep=';', \n    decimal=',', \n    encoding='utf-8', \n    dtype={\n      'MATRICULA': str,\n      'DATA DE ADMISSAO': str,\n      'VR DIARIO - R$': float, \n      'VALOR TOTAL - R$': float, \n      'CUSTO EMPRESA - R$': float,\n      'DESCONTO PROFISSIONAL - R$': float\n    },\n  )\n\n  df['DATA DE ADMISSAO'] = pd.to_datetime(\n                            df['DATA DE ADMISSAO'], \n                            errors='coerce'\n                          ).dt.strftime('%Y-%m-%d')\n  df['DATA DE ADMISSAO'] = df['DATA DE ADMISSAO'].apply(lambda x: '' if pd.isna(x) else x)\n  \n  # Adicione colunas aqui para serem excluídas da base final\n  drop_list = []\n  df.drop([col for col in drop_list if col in df.columns], axis=1)\n  \n  # Records para exportar no padrão JSON\n  data = df.to_dict(orient=\"records\")\n\nexcept Exception as e:\n  print(f'Error: \\n{e}')\n  data = {}\nfinally:\n  return data"
+        "pythonCode": "import pandas as pd\nimport io\n\ntry:\n  # Tratando e convertendo os dados para um formato compatível\n  input_data = _input.first().json['output']\n  data = input_data.replace('`', '').replace('csv', '').rstrip(';')\n  parsed_data = io.StringIO(data)\n\n  # Lendo o objeto, tratando com pandas e convertendo para um dicionário\n  df = pd.read_csv(\n    parsed_data, \n    sep=';', \n    decimal=',', \n    encoding='utf-8', \n    dtype={\n      'MATRICULA': str,\n      'DATA DE ADMISSAO': str,\n      'VR DIARIO - R$': float, \n      'VALOR TOTAL - R$': float, \n      'CUSTO EMPRESA - R$': float,\n      'DESCONTO PROFISSIONAL - R$': float\n    },\n  )\n\n  df['DATA DE ADMISSAO'] = pd.to_datetime(\n                            df['DATA DE ADMISSAO'], \n                            errors='coerce'\n                          ).dt.strftime('%Y/%m/%d')\n  df['DATA DE ADMISSAO'] = df['DATA DE ADMISSAO'].fillna('')\n  df['OBSERVACAO'] = df['OBSERVACAO'].fillna('')\n  \n  # Adicione colunas aqui para serem excluídas da base final\n  drop_list = []\n  df.drop([col for col in drop_list if col in df.columns], axis=1, inplace=True)\n  \n  # Records para exportar no padrão JSON\n  data = df.to_dict(orient=\"records\")\n\nexcept Exception as e:\n  print(f'Error: \\n{e}')\n  data = {}\nfinally:\n  return data"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -386,7 +390,7 @@
         784
       ],
       "id": "ce579236-f6b2-4987-bcca-00c3aab2be0d",
-      "name": "Gemini 2.5 Flash",
+      "name": "Gemini 2.5 Pro",
       "credentials": {
         "googlePalmApi": {
           "id": "0TgrYJM7ORUaNjlJ",
@@ -408,7 +412,7 @@
         784
       ],
       "id": "8eea38bc-3333-4cfd-bcf0-eadd24ebaa6b",
-      "name": "Gemini 2.5 Flash 2",
+      "name": "Gemini 2.5 Pro 2",
       "credentials": {
         "googlePalmApi": {
           "id": "0TgrYJM7ORUaNjlJ",
@@ -580,7 +584,7 @@
         ]
       ]
     },
-    "Gemini 2.5 Flash": {
+    "Gemini 2.5 Pro": {
       "ai_languageModel": [
         [
           {
@@ -591,7 +595,7 @@
         ]
       ]
     },
-    "Gemini 2.5 Flash 2": {
+    "Gemini 2.5 Pro 2": {
       "ai_languageModel": [
         [
           {
@@ -609,7 +613,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "executionTimeout": -1
   },
-  "versionId": "7b4e2bee-ef8f-4497-a52f-38aa6ba7d25e",
+  "versionId": "8b93eb1a-48e5-44f2-8cf4-1d7df8dfbd88",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "231b4fcf052db07b90cec772d2e46c08568f8721ea038399e11d196703eb0290"
